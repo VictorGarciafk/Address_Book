@@ -45,6 +45,44 @@ void listarContactos() {
     fclose(archivo);
 }
 
+void buscarContacto(){
+    FILE *archivo = fopen("agenda.dat", "rb");
+    Contacto c;
+    int encontrado = 0;
+    if (archivo == NULL) {
+        printf("\nNo hay contactos registrados.\n");
+        return;
+    }
+
+    printf("\nBusqueda de contactos:\n");
+    printf("\nIngrese el nombre del contacto a buscar: ");
+    fgets(c.nombre, sizeof(c.nombre), stdin);
+    c.nombre[strcspn(c.nombre, "\n")] = '\0'; 
+    Contacto contacto;
+    printf("\nLista de contactos:\n");
+    while (fread(&contacto, sizeof(Contacto), 1, archivo)) {
+        
+        if (strstr(contacto.nombre, c.nombre))
+        {
+        printf("Nombre: %s\n", contacto.nombre);
+        printf("Teléfono: %s\n", contacto.telefono);
+        printf("Correo: %s\n", contacto.correo);
+        printf("Dirección: %s\n", contacto.direccion);
+        printf("---------------------------\n");
+        encontrado++;
+        }
+        
+    }
+    fclose(archivo);
+
+    if(encontrado == 1){
+        printf("se encontraron %d contacto\n", encontrado);
+    }else{
+        printf("se encontraron %d contactos\n", encontrado);
+    }
+    
+}
+
 void Menu(){
     printf("\n*-*-*-*-*-*Menu de opciones*-*-*-*-*-*");
     printf("\n1.- Agregar contacto");
@@ -62,7 +100,6 @@ int main() {
     int integer;
     bool opcion = false;
     bool avanzar = false;
-    FILE *Xfile;
 
     //se imprime el menu de opciones
     Menu();
@@ -113,8 +150,10 @@ int main() {
         break;
 
     case 2:
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         printf("\n*-*-*-*-*-*Buscar contacto-*-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*Work in progress*-*-*-*-*-*");
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+        buscarContacto();
         break;
 
     case 3:
@@ -135,7 +174,9 @@ int main() {
         break;
 
     case 6:
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         printf("\n*-*-*-*-*-*-*-*-*Salir-*-*-*-*-*-*-*-*");
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         exit(0);
         break;
     }
