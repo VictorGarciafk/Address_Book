@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE 206
 
 bool parse_int(char *str, int *integer);
 
@@ -54,7 +54,6 @@ void buscarContacto(){
         return;
     }
 
-    printf("\nBusqueda de contactos:\n");
     printf("\nIngrese el nombre del contacto a buscar: ");
     fgets(c.nombre, sizeof(c.nombre), stdin);
     c.nombre[strcspn(c.nombre, "\n")] = '\0'; 
@@ -83,6 +82,50 @@ void buscarContacto(){
     
 }
 
+void EliminarContacto(const char *nombreE){
+    FILE *archivo = fopen("agenda.dat", "rb"); 
+    if (archivo == NULL) {
+        printf("\nNo hay contactos registrados.\n");
+        return;
+    }
+
+    FILE *archivoTemporal = fopen("temp.dat", "wb");
+    if (archivoTemporal == NULL) {
+        printf("No se pudo crear el archivo temporal.\n");
+        fclose(archivo);
+        return;
+    }
+
+    Contacto contacto;
+    int encontrado = 0;
+
+    while (fread(&contacto, sizeof(Contacto), 1, archivo)) {
+        if (strcmp(contacto.nombre, nombreE) == 0) {
+            encontrado = 1;
+            printf("\nContacto eliminado:\n");
+            printf("Nombre: %s\n", contacto.nombre);
+            printf("Teléfono: %s\n", contacto.telefono);
+            printf("Correo: %s\n", contacto.correo);
+            printf("Dirección: %s\n", contacto.direccion);
+            printf("-------------------------------------\n");
+        } else {
+            fwrite(&contacto, sizeof(Contacto), 1, archivoTemporal);
+        }
+    }
+
+    fclose(archivo);
+    fclose(archivoTemporal);
+
+    if (encontrado) {
+        remove("agenda.dat");
+        rename("temp.dat", "agenda.dat");
+        printf("\nEl contacto ha sido eliminado exitosamente.\n");
+    } else {
+        printf("\nNo se encontró un contacto con el nombre: %s\n", nombreE);
+        remove("temp.dat");
+    }
+}
+
 void Menu(){
     printf("\n*-*-*-*-*-*Menu de opciones*-*-*-*-*-*");
     printf("\n1.- Agregar contacto");
@@ -100,6 +143,8 @@ int main() {
     int integer;
     bool opcion = false;
     bool avanzar = false;
+    char nombre[BUFFER_SIZE];
+    Contacto c;
 
     //se imprime el menu de opciones
     Menu();
@@ -129,7 +174,8 @@ int main() {
         printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         printf("\n*-*-*-*-*-*Agregar contacto*-*-*-*-*-*");
         printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        Contacto c;
+        
+        
         printf("\nIngrese el nombre: ");
         fgets(c.nombre, sizeof(c.nombre), stdin);
         // Elimina el salto de línea
@@ -162,8 +208,13 @@ int main() {
         break;
 
     case 4:
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         printf("\n*-*-*-*-*-*Eliminar contacto-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*Work in progress*-*-*-*-*-*");
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+        printf("\n\nIngrese el nombre del contacto a buscar: ");
+        fgets(nombre, sizeof(nombre), stdin);
+        nombre[strcspn(nombre, "\n")] = '\0'; 
+        EliminarContacto(nombre);
         break;
 
     case 5:
