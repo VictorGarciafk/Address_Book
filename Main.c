@@ -16,7 +16,7 @@ typedef struct {
     char direccion[100];
 } Contacto;
 
-void AgregarContacto(Contacto *contacto) {
+void agregarContacto(Contacto *contacto) {
     FILE *archivo = fopen("agenda.dat", "ab");
     if (archivo == NULL) {
         printf("Error al abrir el archivo.\n");
@@ -82,7 +82,7 @@ void buscarContacto(){
     
 }
 
-void EliminarContacto(const char *nombreE){
+void eliminarContacto(const char *nombreEiminar){
     FILE *archivo = fopen("agenda.dat", "rb"); 
     if (archivo == NULL) {
         printf("\nNo hay contactos registrados.\n");
@@ -100,7 +100,7 @@ void EliminarContacto(const char *nombreE){
     int encontrado = 0;
 
     while (fread(&contacto, sizeof(Contacto), 1, archivo)) {
-        if (strcmp(contacto.nombre, nombreE) == 0) {
+        if (strcmp(contacto.nombre, nombreEiminar) == 0) {
             encontrado = 1;
             printf("\nContacto eliminado:\n");
             printf("Nombre: %s\n", contacto.nombre);
@@ -121,7 +121,86 @@ void EliminarContacto(const char *nombreE){
         rename("temp.dat", "agenda.dat");
         printf("\nEl contacto ha sido eliminado exitosamente.\n");
     } else {
-        printf("\nNo se encontró un contacto con el nombre: %s\n", nombreE);
+        printf("\nNo se encontró un contacto con el nombre: %s\n", nombreEiminar);
+        remove("temp.dat");
+    }
+}
+
+void editarContacto(const char *nombreEditar){
+FILE *archivo = fopen("agenda.dat", "rb"); 
+    if (archivo == NULL) {
+        printf("\nNo hay contactos registrados.\n");
+        return;
+    }
+
+    FILE *archivoTemporal = fopen("temp.dat", "wb");
+    if (archivoTemporal == NULL) {
+        printf("No se pudo crear el archivo temporal.\n");
+        fclose(archivo);
+        return;
+    }
+
+Contacto contacto;
+int encontrado;
+
+while (fread(&contacto, sizeof(Contacto), 1, archivo)) {
+        if (strcmp(contacto.nombre, nombreEditar) == 0) {
+            encontrado = 1;
+            char input[BUFFER_SIZE];
+
+            printf("\nContacto encontrado:\n");
+            printf("Nombre: %s\n", contacto.nombre);
+            printf("Teléfono: %s\n", contacto.telefono);
+            printf("Correo: %s\n", contacto.correo);
+            printf("Dirección: %s\n", contacto.direccion);
+            printf("-------------------------------------\n");
+            printf("\nIngrese los nuevos datos (deje el campo vacio para no modificar)\n");
+            
+            printf("\nNuevo nombre: ");
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n')
+            {
+                // Elimina el salto de línea
+                input[strcspn(input, "\n")] = '\0';
+                strcpy(contacto.nombre, input);
+            }
+            
+            printf("\nNuevo teléfono: ");
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n')
+            {
+                input[strcspn(input, "\n")] = '\0';
+                strcpy(contacto.telefono, input);
+            }
+            
+            printf("\nNuevo correo: ");
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n')
+            {
+                input[strcspn(input, "\n")] = '\0';
+                strcpy(contacto.correo, input);
+            }
+            
+            printf("\nNueva dirección: ");
+            fgets(input, sizeof(input), stdin);
+            if (input[0] != '\n')
+            {
+                input[strcspn(input, "\n")] = '\0';
+                strcpy(contacto.direccion, input);
+            }
+        }
+            fwrite(&contacto, sizeof(Contacto), 1, archivoTemporal);
+    }
+
+    fclose(archivo);
+    fclose(archivoTemporal);
+
+    if (encontrado) {
+        remove("agenda.dat");
+        rename("temp.dat", "agenda.dat");
+        printf("\nEl contacto ha sido editado exitosamente.\n");
+    } else {
+        printf("\nNo se encontró un contacto con el nombre: %s\n", nombreEditar);
         remove("temp.dat");
     }
 }
@@ -136,7 +215,6 @@ void Menu(){
     printf("\n6.- Salir");
     printf("\n\nIngrese la opcion deseada: ");
 }
-
 
 int main() {
     bool parsed_correct = true;
@@ -175,7 +253,6 @@ int main() {
         printf("\n*-*-*-*-*-*Agregar contacto*-*-*-*-*-*");
         printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         
-        
         printf("\nIngrese el nombre: ");
         fgets(c.nombre, sizeof(c.nombre), stdin);
         // Elimina el salto de línea
@@ -191,7 +268,7 @@ int main() {
         c.direccion[strcspn(c.direccion, "\n")] = '\0';
 
         //le damos a la funcion los datos del contacto para que los agregue al archivo
-        AgregarContacto(&c); 
+        agregarContacto(&c); 
         printf("\n¡Contacto añadido con éxito!\n");
         break;
 
@@ -203,18 +280,23 @@ int main() {
         break;
 
     case 3:
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         printf("\n*-*-*-*-*-*Editar contacto-*-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*Work in progress*-*-*-*-*-*");
+        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+        printf("\n\nIngrese el nombre del contacto a editar: ");
+        fgets(nombre, sizeof(nombre), stdin);
+        nombre[strcspn(nombre, "\n")] = '\0'; 
+        editarContacto(nombre);
         break;
 
     case 4:
         printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
         printf("\n*-*-*-*-*-*Eliminar contacto-*-*-*-*-*");
         printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n\nIngrese el nombre del contacto a buscar: ");
+        printf("\n\nIngrese el nombre del contacto a eliminar: ");
         fgets(nombre, sizeof(nombre), stdin);
         nombre[strcspn(nombre, "\n")] = '\0'; 
-        EliminarContacto(nombre);
+        eliminarContacto(nombre);
         break;
 
     case 5:
@@ -231,7 +313,6 @@ int main() {
         exit(0);
         break;
     }
-
 }
 
 //funcion que regresa un entero si el numero ingresado es entero.
