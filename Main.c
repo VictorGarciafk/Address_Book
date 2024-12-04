@@ -217,102 +217,154 @@ void Menu(){
 }
 
 int main() {
+
     bool parsed_correct = true;
     int integer;
-    bool opcion = false;
-    bool avanzar = false;
+    bool optionCheck = false;
+    bool avanzar = true;
     char nombre[BUFFER_SIZE];
     Contacto c;
 
-    //se imprime el menu de opciones
-    Menu();
+    do
+    {
+        //se imprime el menu de opciones
+        Menu();
 
-    do {
-        char buffer[BUFFER_SIZE];
-        fgets(buffer, BUFFER_SIZE, stdin);
-        //getchar();
-        parsed_correct = parse_int(buffer, &integer);
+        do {
+            char buffer[BUFFER_SIZE];
+            fgets(buffer, BUFFER_SIZE, stdin);
+            parsed_correct = parse_int(buffer, &integer);
+            if ((integer < 7) && (integer > 0)) optionCheck = true;
 
-        if ((integer < 7) && (integer > 0)) opcion = true;
+            if(!parsed_correct || (!optionCheck)){
+                printf("\nFavor de ingresar el valor correcto de la opcion deseada: ");
+            }else{
+                avanzar = false;
+            }
+        }while(avanzar);
 
-        if(!parsed_correct || (!opcion)){
-            printf("\nFavor de ingresar el valor correcto de la opcion deseada: ");
+        parsed_correct = true;
+        optionCheck = false;
+        avanzar = true;
+
+        switch (integer)
+        {
+        case 1:
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n*-*-*-*-*-*Agregar contacto*-*-*-*-*-*");
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            
+            do
+            {
+                printf("\nIngrese el nombre: ");
+                fgets(c.nombre, sizeof(c.nombre), stdin);
+                if (c.nombre[0] != '\n')
+                {
+                    // Elimina el salto de línea
+                    c.nombre[strcspn(c.nombre, "\n")] = '\0';
+                    avanzar = false;
+                }else{
+                    printf("\nFavor de ingresar un valor\n");
+                }
+                
+            } while (avanzar);
             avanzar = true;
-        }else{
-            avanzar = false;
+
+            do
+            {
+                printf("\nIngrese el teléfono: ");
+                fgets(c.telefono, sizeof(c.telefono), stdin);
+                parsed_correct = parse_int(c.telefono, &integer);
+
+                if (parsed_correct)
+                {
+                    c.telefono[strcspn(c.telefono, "\n")] = '\0';
+                    avanzar = false;
+                }else{
+                    printf("\nFavor de ingresar un valor numerico");
+                }
+            } while (avanzar);
+            parsed_correct = true;
+            avanzar = true;
+
+            do
+            {
+                printf("\nIngrese el correo: ");
+                fgets(c.correo, sizeof(c.correo), stdin);
+                if (c.correo[0] != '\n')
+                {
+                    c.correo[strcspn(c.correo, "\n")] = '\0';
+                    avanzar = false;
+                }else{
+                    printf("\nFavor de ingresar un valor: ");
+                }
+            } while (avanzar);
+            avanzar = true;
+
+            do
+            {
+                printf("\nIngrese la dirección: ");
+                fgets(c.direccion, sizeof(c.direccion), stdin);
+                if (c.direccion[0] != '\n')
+                {
+                    c.direccion[strcspn(c.direccion, "\n")] = '\0';
+                    avanzar = false;
+                }else{
+                    printf("\nFavor de ingresar un valor: ");
+                }
+                
+            } while (avanzar);
+            avanzar = true;
+
+            //le damos a la funcion los datos del contacto para que los agregue al archivo
+            agregarContacto(&c); 
+            printf("\n¡Contacto añadido con éxito!\n");
+            break;
+
+        case 2:
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n*-*-*-*-*-*Buscar contacto-*-*-*-*-*-*");
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            buscarContacto();
+            break;
+
+        case 3:
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n*-*-*-*-*-*Editar contacto-*-*-*-*-*-*");
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n\nIngrese el nombre del contacto a editar: ");
+            fgets(nombre, sizeof(nombre), stdin);
+            nombre[strcspn(nombre, "\n")] = '\0'; 
+            editarContacto(nombre);
+            break;
+
+        case 4:
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n*-*-*-*-*-*Eliminar contacto-*-*-*-*-*");
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n\nIngrese el nombre del contacto a eliminar: ");
+            fgets(nombre, sizeof(nombre), stdin);
+            nombre[strcspn(nombre, "\n")] = '\0'; 
+            eliminarContacto(nombre);
+            break;
+
+        case 5:
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n*-*-*-*-*-Agenda de contactos*-*-*-*-*");
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            listarContactos();
+            break;
+
+        case 6:
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            printf("\n*-*-*-*-*-*-*-*-*Salir-*-*-*-*-*-*-*-*");
+            printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
+            exit(0);
+            break;
         }
 
-    }while(avanzar);
-
-    //printf("Opcion seleccionada: %d\n", integer);
-
-    switch (integer)
-    {
-    case 1:
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n*-*-*-*-*-*Agregar contacto*-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        
-        printf("\nIngrese el nombre: ");
-        fgets(c.nombre, sizeof(c.nombre), stdin);
-        // Elimina el salto de línea
-        c.nombre[strcspn(c.nombre, "\n")] = '\0'; 
-        printf("\nIngrese el teléfono: ");
-        fgets(c.telefono, sizeof(c.telefono), stdin);
-        c.telefono[strcspn(c.telefono, "\n")] = '\0';
-        printf("\nIngrese el correo: ");
-        fgets(c.correo, sizeof(c.correo), stdin);
-        c.correo[strcspn(c.correo, "\n")] = '\0';
-        printf("\nIngrese la dirección: ");
-        fgets(c.direccion, sizeof(c.direccion), stdin);
-        c.direccion[strcspn(c.direccion, "\n")] = '\0';
-
-        //le damos a la funcion los datos del contacto para que los agregue al archivo
-        agregarContacto(&c); 
-        printf("\n¡Contacto añadido con éxito!\n");
-        break;
-
-    case 2:
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n*-*-*-*-*-*Buscar contacto-*-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        buscarContacto();
-        break;
-
-    case 3:
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n*-*-*-*-*-*Editar contacto-*-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n\nIngrese el nombre del contacto a editar: ");
-        fgets(nombre, sizeof(nombre), stdin);
-        nombre[strcspn(nombre, "\n")] = '\0'; 
-        editarContacto(nombre);
-        break;
-
-    case 4:
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n*-*-*-*-*-*Eliminar contacto-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n\nIngrese el nombre del contacto a eliminar: ");
-        fgets(nombre, sizeof(nombre), stdin);
-        nombre[strcspn(nombre, "\n")] = '\0'; 
-        eliminarContacto(nombre);
-        break;
-
-    case 5:
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n*-*-*-*-*-Agenda de contactos*-*-*-*-*");
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        listarContactos();
-        break;
-
-    case 6:
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        printf("\n*-*-*-*-*-*-*-*-*Salir-*-*-*-*-*-*-*-*");
-        printf("\n*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-");
-        exit(0);
-        break;
-    }
+        printf("-------------------------------------------------------------");
+    } while (true);
 }
 
 //funcion que regresa un entero si el numero ingresado es entero.
